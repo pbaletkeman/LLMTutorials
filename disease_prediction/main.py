@@ -13,7 +13,6 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
 
-
 # Reading the train.csv by removing the
 # last column since it's an empty column
 DATA_PATH = "dataset/Training.csv"
@@ -21,10 +20,7 @@ data = pd.read_csv(DATA_PATH).dropna(axis = 1)
 
 # Checking whether the dataset is balanced or not
 disease_counts = data["prognosis"].value_counts()
-temp_df = pd.DataFrame({
-    "Disease": disease_counts.index,
-    "Counts": disease_counts.values
-})
+temp_df = pd.DataFrame({ "Disease": disease_counts.index, "Counts": disease_counts.values})
 
 plt.figure(figsize = (18,8))
 sns.barplot(x = "Disease", y = "Counts", data = temp_df)
@@ -69,14 +65,13 @@ for model_name in models:
 # Training and testing SVM Classifier
 svm_model = SVC()
 svm_model.fit(X_train, y_train)
-preds = svm_model.predict(X_test)
+predictions = svm_model.predict(X_test)
 
-print(f"Accuracy on train data by SVM Classifier\
-: {accuracy_score(y_train, svm_model.predict(X_train))*100}")
+print(f"Accuracy on train data by SVM Classifier: {accuracy_score(y_train, svm_model.predict(X_train))*100}")
 
-print(f"Accuracy on test data by SVM Classifier\
-: {accuracy_score(y_test, preds)*100}")
-cf_matrix = confusion_matrix(y_test, preds)
+print(f"Accuracy on test data by SVM Classifier: {accuracy_score(y_test, predictions) * 100}")
+
+cf_matrix = confusion_matrix(y_test, predictions)
 plt.figure(figsize=(12,8))
 sns.heatmap(cf_matrix, annot=True)
 plt.title("Confusion Matrix for SVM Classifier on Test Data")
@@ -85,13 +80,11 @@ plt.show()
 # Training and testing Naive Bayes Classifier
 nb_model = GaussianNB()
 nb_model.fit(X_train, y_train)
-preds = nb_model.predict(X_test)
-print(f"Accuracy on train data by Naive Bayes Classifier\
-: {accuracy_score(y_train, nb_model.predict(X_train))*100}")
+predictions = nb_model.predict(X_test)
+print(f"Accuracy on train data by Naive Bayes Classifier: {accuracy_score(y_train, nb_model.predict(X_train))*100}")
 
-print(f"Accuracy on test data by Naive Bayes Classifier\
-: {accuracy_score(y_test, preds)*100}")
-cf_matrix = confusion_matrix(y_test, preds)
+print(f"Accuracy on test data by Naive Bayes Classifier: {accuracy_score(y_test, predictions) * 100}")
+cf_matrix = confusion_matrix(y_test, predictions)
 plt.figure(figsize=(12,8))
 sns.heatmap(cf_matrix, annot=True)
 plt.title("Confusion Matrix for Naive Bayes Classifier on Test Data")
@@ -100,14 +93,12 @@ plt.show()
 # Training and testing Random Forest Classifier
 rf_model = RandomForestClassifier(random_state=18)
 rf_model.fit(X_train, y_train)
-preds = rf_model.predict(X_test)
-print(f"Accuracy on train data by Random Forest Classifier\
-: {accuracy_score(y_train, rf_model.predict(X_train))*100}")
+predictions = rf_model.predict(X_test)
+print(f"Accuracy on train data by Random Forest Classifier: {accuracy_score(y_train, rf_model.predict(X_train))*100}")
 
-print(f"Accuracy on test data by Random Forest Classifier\
-: {accuracy_score(y_test, preds)*100}")
+print(f"Accuracy on test data by Random Forest Classifier {accuracy_score(y_test, predictions) * 100}")
 
-cf_matrix = confusion_matrix(y_test, preds)
+cf_matrix = confusion_matrix(y_test, predictions)
 plt.figure(figsize=(12,8))
 sns.heatmap(cf_matrix, annot=True)
 plt.title("Confusion Matrix for Random Forest Classifier on Test Data")
@@ -129,16 +120,16 @@ test_Y = encoder.transform(test_data.iloc[:, -1])
 
 # Making prediction by take mode of predictions
 # made by all the classifiers
-svm_preds = final_svm_model.predict(test_X)
-nb_preds = final_nb_model.predict(test_X)
-rf_preds = final_rf_model.predict(test_X)
+svm_predictions = final_svm_model.predict(test_X)
+nb_predictions = final_nb_model.predict(test_X)
+rf_predictions = final_rf_model.predict(test_X)
 
 
-final_preds = [stats.mode([i,j,k])[0] for i,j,k in zip(svm_preds, nb_preds, rf_preds)]
+final_predictions = [stats.mode([i, j, k])[0] for i,j,k in zip(svm_predictions, nb_predictions, rf_predictions)]
 
-print(f"Accuracy on Test dataset by the combined model: {accuracy_score(test_Y, final_preds)*100}")
+print(f"Accuracy on Test dataset by the combined model: {accuracy_score(test_Y, final_predictions) * 100}")
 
-cf_matrix = confusion_matrix(test_Y, final_preds)
+cf_matrix = confusion_matrix(test_Y, final_predictions)
 plt.figure(figsize=(12,8))
 
 sns.heatmap(cf_matrix, annot = True)
@@ -154,23 +145,20 @@ for index, value in enumerate(symptoms):
     symptom = " ".join([i.capitalize() for i in value.split("_")])
     symptom_index[symptom] = index
 
-data_dict = {
-    "symptom_index": symptom_index,
-    "predictions_classes": encoder.classes_
-}
+data_dict = { "symptom_index": symptom_index, "predictions_classes": encoder.classes_}
 
 
 # Defining the Function
 # Input: string containing symptoms separated by commas
 # Output: Generated predictions by models
-def predictDisease(symptoms):
-    symptoms = symptoms.split(",")
+def predict_disease(in_symptoms):
+    local_symptoms = in_symptoms.split(",")
 
     # creating input data for the models
     input_data = [0] * len(data_dict["symptom_index"])
-    for symptom in symptoms:
-        index = data_dict["symptom_index"][symptom]
-        input_data[index] = 1
+    for sym in local_symptoms:
+        idx = data_dict["symptom_index"][sym]
+        input_data[idx] = 1
 
     # reshaping the input data and converting it
     # into suitable format for model predictions
@@ -185,15 +173,14 @@ def predictDisease(symptoms):
     # Use statistics.mode instead of scipy.stats.mode
 
     final_prediction = statistics.mode([rf_prediction, nb_prediction, svm_prediction])
-    predictions = {
+    local_predictions = {
         "rf_model_prediction": rf_prediction,
         "naive_bayes_prediction": nb_prediction,
         "svm_model_prediction": svm_prediction,
         "final_prediction": final_prediction
     }
-    return predictions
+    return local_predictions
 
 
 # Testing the function
-print(predictDisease("Itching,Skin Rash,Nodal Skin Eruptions"))
-
+print(predict_disease("Itching,Skin Rash,Nodal Skin Eruptions"))
