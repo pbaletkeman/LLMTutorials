@@ -78,4 +78,4 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 /datasets/
-!/payment_fraud_detection/new_file.csv
+/payment_fraud_detection/new_file.csv
