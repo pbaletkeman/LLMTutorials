@@ -79,3 +79,4 @@ fabric.properties
 
 /datasets/
 /payment_fraud_detection/new_file.csv
+/diffusion/data/
