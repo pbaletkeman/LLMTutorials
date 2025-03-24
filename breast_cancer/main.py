@@ -114,7 +114,7 @@ def predict(w, b, x_test):
     # if z is bigger than 0.5, our prediction is sign one (y_head = 1),
     # if z is smaller than 0.5, our prediction is sign zero (y_head = 0),
     for i in range(z.shape[1]):
-        Y_prediction[0, i] = 0 if z[0, i]<= 0.5  else Y_prediction[0, i] = 1
+        Y_prediction[0, i] = 0 if z[0, i] <= 0.5 else  1
     return Y_prediction
 
 # Logistic Regression
