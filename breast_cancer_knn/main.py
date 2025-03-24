@@ -22,6 +22,7 @@ print()
 df = df.drop(['Unnamed: 32', 'id'], axis = 1)
 print('shape')
 print(df.shape)
+print()
 
 def diagnosis_value(diagnosis):
     return 1 if diagnosis == 'M' else 0
@@ -41,7 +42,8 @@ knn = KNeighborsClassifier(n_neighbors = 13)
 knn.fit(X_train, y_train)
 
 print("knn score")
-print(knn.score(X_test, y_test))
+print(f"{knn.score(X_test, y_test)*100:.4}%")
+print()
 
 neighbors = []
 cv_scores = []
